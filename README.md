@@ -14,7 +14,7 @@ Edit `steam_auto_delete_conf.py` to configure your steam library, whitelist and 
 
 ```
 # your steam libraries
-steam_libraries = ['C:\\Program Files (x86)\\Steam', 'D:\steam']
+steam_libraries = ['C:\\Program Files (x86)\\Steam', 'D:\\steam']
 
 # delete a game if you haven't played it for this number of days
 delete_days = 365
