@@ -20,6 +20,9 @@ delete_date = datetime.datetime.now() - datetime.timedelta(days=delete_days)
 do_delete = '--delete' in sys.argv[1:]
 show_all = '--all' in sys.argv[1:]
 
+
+LOG_FILE = os.path.join(os.path.dirname(sys.argv[0]), 'steam_auto_delete.log')
+
 print('----------------------------------------')
 print(f'delete games not played after {delete_date}')
 print('----------------------------------------')
@@ -90,6 +93,8 @@ for steam_library in steam_libraries:
                 print('\tgame is whitelisted')
         elif delete_game:
             if do_delete:
+                with open(LOG_FILE, "a") as fp:
+                    fp.write(f"{datetime.datetime.now()}: delete '{game['name']}' ({game['id']})\n")
                 print(f"\tdelete '{game['acf']}'")
                 os.remove(game['acf'])
 
