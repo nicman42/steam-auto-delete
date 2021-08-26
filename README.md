@@ -5,8 +5,8 @@ Deletes all your installed steam games you haven't played for more than X days.
 ## Usage
 `steam_auto_delete.py [--all] [--delete]`
 <dl>
-<dt>--all</dt><dd>show all games</dd>
-<dt>--delete</dt><dd>delete games</dd>
+<dt>--all</dt><dd>List all games. Without this argument, only games for deletion are displayed.</dd>
+<dt>--delete</dt><dd>Delete games. Without this argument nothing is deleted.</dd>
 </dl>
 
 ## Configure
