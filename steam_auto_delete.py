@@ -9,11 +9,11 @@ try:
     import steam_auto_delete_conf as conf
     steam_libraries = conf.steam_libraries
     delete_days = conf.delete_days
-    whitelist = [str(id) for id in conf.whitelist]
+    exclude = [str(id) for id in conf.exclude]
 except ImportError:
     steam_libraries = ['C:\\Program Files (x86)\\Steam']
     delete_days = 365
-    whitelist = []
+    exclude = []
 
 delete_date = datetime.datetime.now() - datetime.timedelta(days=delete_days)
 
@@ -81,16 +81,16 @@ for steam_library in steam_libraries:
                         game['name'] = value
 
 
-        delete_game = not game['id'] in whitelist and game['last_played_times'] and game['last_played_times']<delete_date
+        delete_game = not game['id'] in exclude and game['last_played_times'] and game['last_played_times']<delete_date
 
         if delete_game or show_all:
             print(game['name'])
             print(f"\tid: {game['id']}")
             print(f"\tlast played: {game['last_played_times']}")
 
-        if game['id'] in whitelist:
+        if game['id'] in exclude:
             if show_all:
-                print('\tgame is whitelisted')
+                print('\tgame is excluded from deletion')
         elif delete_game:
             if do_delete:
                 with open(LOG_FILE, "a") as fp:
