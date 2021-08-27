@@ -27,6 +27,7 @@ print('----------------------------------------')
 print(f'delete games not played after {delete_date}')
 print('----------------------------------------')
 
+# get last played times
 last_played_times = {}
 for steam_library in steam_libraries:
     user_data = os.path.join(steam_library, 'userdata')
@@ -52,6 +53,8 @@ for steam_library in steam_libraries:
 
 last_played_times = {key:datetime.datetime.fromtimestamp(value) for (key,value) in last_played_times.items()}
 
+# get installed games
+games = []
 for steam_library in steam_libraries:
     steamapps = os.path.join(steam_library, 'steamapps')
     if not os.path.exists(steamapps):
@@ -62,7 +65,7 @@ for steam_library in steam_libraries:
         game = {
             'id': id,
             'acf': acf_path,
-            'last_played_times': last_played_times.get(id),
+            'last_played_time': last_played_times.get(id),
         }
         with open(acf_path) as fp:
             for line in fp.readlines():
@@ -79,31 +82,35 @@ for steam_library in steam_libraries:
                     # fallback for name
                     if game['name'].startswith("appid_"):
                         game['name'] = value
+        games.append(game)
 
+games.sort(key = lambda g: g['last_played_time'] or datetime.datetime(datetime.MINYEAR, 1, 1))
 
-        delete_game = not game['id'] in exclude and game['last_played_times'] and game['last_played_times']<delete_date
+# list/delete games
+for game in games:
+    delete_game = not game['id'] in exclude and game['last_played_time'] and game['last_played_time']<delete_date
 
-        if delete_game or show_all:
-            print(game['name'])
-            print(f"\tid: {game['id']}")
-            print(f"\tlast played: {game['last_played_times']}")
+    if delete_game or show_all:
+        print(game['name'])
+        print(f"\tid: {game['id']}")
+        print(f"\tlast played: {game['last_played_time']}")
 
-        if game['id'] in exclude:
-            if show_all:
-                print('\tgame is excluded from deletion')
-        elif delete_game:
-            if do_delete:
-                with open(LOG_FILE, "a") as fp:
-                    fp.write(f"{datetime.datetime.now()}: delete '{game['name']}' ({game['id']})\n")
-                print(f"\tdelete '{game['acf']}'")
-                os.remove(game['acf'])
+    if game['id'] in exclude:
+        if show_all:
+            print('\tgame is excluded from deletion')
+    elif delete_game:
+        if do_delete:
+            with open(LOG_FILE, "a") as fp:
+                fp.write(f"{datetime.datetime.now()}: delete '{game['name']}' ({game['id']})\n")
+            print(f"\tdelete '{game['acf']}'")
+            os.remove(game['acf'])
 
-                print(f"\tdelete '{game['installdir']}'")
-                shutil.rmtree(game['installdir'])
-            else:
-                print(f"\tacf: '{game['acf']}'")
-                print(f"\tinstalldir: '{game['installdir']}'")
-                print("\tcall with '--delete' to delete this game")
+            print(f"\tdelete '{game['installdir']}'")
+            shutil.rmtree(game['installdir'])
+        else:
+            print(f"\tacf: '{game['acf']}'")
+            print(f"\tinstalldir: '{game['installdir']}'")
+            print("\tcall with '--delete' to delete this game")
 
 print('----------------------------------------')
 print(f'usage: {os.path.basename(sys.argv[0])} [--all] [--delete]')
